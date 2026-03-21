@@ -1,0 +1,16 @@
+
+# Virtual environment
+venv/
+
+# Datasets (too large for GitHub)
+datasets/
+
+# Training runs/outputs
+runs/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# VS Code
+.vscode/
