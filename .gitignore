@@ -14,3 +14,5 @@ __pycache__/
 
 # VS Code
 .vscode/
+yolo26n.pt
+yolov8n.pt
