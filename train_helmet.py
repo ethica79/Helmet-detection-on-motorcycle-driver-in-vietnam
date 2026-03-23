@@ -28,7 +28,7 @@ def main():
         device   = "0" if torch.cuda.is_available() else "cpu",
     )
 
-    print("✅ Training complete!")
+    print("Training complete!")
     print(f"Best weights: {PROJECT}/{RUN_NAME}/weights/best.pt")
 
 if __name__ == '__main__':

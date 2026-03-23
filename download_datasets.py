@@ -49,7 +49,7 @@ def download_with_retry(workspace, project_name, version_num, save_dir, max_retr
                 print(f"   ⚠️  Attempt {attempt} failed. Retrying in {wait}s...")
                 time.sleep(wait)
             else:
-                print(f"   ❌ Failed after {max_retries} attempts: {e}")
+                print(f"Failed after {max_retries} attempts: {e}")
                 return False
 
 print("=" * 50)
@@ -65,9 +65,9 @@ for ds in helmet_datasets:
         ds["save_dir"]
     )
     if success:
-        print(f"✅  Saved to: {ds['save_dir']}")
+        print(f"Saved to: {ds['save_dir']}")
     else:
-        print(f"❌  Skipped: {ds['name']}")
+        print(f"Skipped: {ds['name']}")
 
 print("\n" + "=" * 50)
 print("Download complete!")

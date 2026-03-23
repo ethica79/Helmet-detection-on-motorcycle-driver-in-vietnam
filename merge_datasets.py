@@ -54,14 +54,14 @@ def merge():
     for ds_name, ds_info in DATASET_MAPPINGS.items():
         ds_path = ds_info["path"]
         mapping = ds_info["mapping"]
-        print(f"\n📦 Processing: {ds_name}")
+        print(f"\nProcessing: {ds_name}")
 
         for split in SPLITS:
             img_dir = Path(f"{ds_path}/{split}/images")
             lbl_dir = Path(f"{ds_path}/{split}/labels")
 
             if not img_dir.exists():
-                print(f"   ⚠️  No {split} split found, skipping")
+                print(f"No {split} split found, skipping")
                 continue
 
             images = list(img_dir.glob("*.*"))
@@ -84,7 +84,7 @@ def merge():
                 else:
                     skipped += 1
 
-        print(f"   ✅ Done")
+        print(f"Done")
 
     yaml_content = {
         "path": OUTPUT_DIR,
@@ -98,7 +98,7 @@ def merge():
         yaml.dump(yaml_content, f, default_flow_style=False)
 
     print("\n" + "=" * 50)
-    print("✅ Merge complete!")
+    print("Merge complete!")
     print("=" * 50)
     print(f"  train: {counters['train']} images")
     print(f"  valid: {counters['valid']} images")

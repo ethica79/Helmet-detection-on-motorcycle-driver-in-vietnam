@@ -80,4 +80,4 @@ ax4.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig(r"C:\ProjectHate\runs\detect\runs\helmet\v14\analysis_plots.png", dpi=150, bbox_inches='tight')# Update path as needed
 plt.show()
-print("\n✅ Plot saved to runs/detect/runs/helmet/v1/analysis_plots.png")# Update path as needed
+print("\nPlot saved to runs/detect/runs/helmet/v1/analysis_plots.png")# Update path as needed
