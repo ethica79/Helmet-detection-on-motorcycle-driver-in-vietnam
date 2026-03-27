@@ -30,16 +30,44 @@ helmet_datasets = [
         "version": 1,
         "save_dir": os.path.join(BASE_DIR, "helmet", "spresearchwork")
     },
+    {
+        "name": "Non Bao Hiem (thien-phuoc)",
+        "workspace": "thien-phuoc",
+        "project": "non-bao-hiem",
+        "version": 1,
+        "save_dir": os.path.join(BASE_DIR, "helmet", "thien_phuoc")
+    },
+    {
+        "name": "Non Bao Hiem (tuandung)",
+        "workspace": "tuandung-3ed5z",
+        "project": "non-bao-hiem-n5bdk",
+        "version": 1,
+        "save_dir": os.path.join(BASE_DIR, "helmet", "tuandung")
+    },
+    {
+        "name": "No Helmet No Ride (abdullah)",
+        "workspace": "abdullah-kqdi3",
+        "project": "no-helmet-no-ride",
+        "version": 2,
+        "save_dir": os.path.join(BASE_DIR, "helmet", "abdullah")
+    },
+    {
+        "name": "Motorbike Helmet (alex)",
+        "workspace": "alex-56cf0",
+        "project": "motorbike-helmet",
+        "version": 3,
+        "save_dir": os.path.join(BASE_DIR, "helmet", "alex")
+    },
 ]
 
-def download_with_retry(workspace, project_name, version_num, save_dir, max_retries=5):
+def download_with_retry(workspace, project_name, version_num, save_dir, fmt="yolov8", max_retries=5):
     for attempt in range(1, max_retries + 1):
         try:
             os.makedirs(save_dir, exist_ok=True)
             os.chdir(save_dir)
             project = rf.workspace(workspace).project(project_name)
             version = project.version(version_num)
-            version.download("yolov8")
+            version.download(fmt)
             os.chdir(ROOT_DIR)  # always return to absolute root
             return True
         except Exception as e:
@@ -57,12 +85,16 @@ print("Starting helmet dataset downloads...")
 print("=" * 50)
 
 for ds in helmet_datasets:
+    if os.path.exists(ds["save_dir"]) and os.listdir(ds["save_dir"]):
+        print(f"\n✅ Already exists, skipping: {ds['name']}")
+        continue
     print(f"\n⬇️  Downloading: {ds['name']}")
     success = download_with_retry(
         ds["workspace"],
         ds["project"],
         ds["version"],
-        ds["save_dir"]
+        ds["save_dir"],
+        fmt=ds.get("format", "yolov8")
     )
     if success:
         print(f"Saved to: {ds['save_dir']}")

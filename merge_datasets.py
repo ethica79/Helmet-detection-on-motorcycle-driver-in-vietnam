@@ -18,6 +18,22 @@ DATASET_MAPPINGS = {
         "path": r"C:\ProjectHate\datasets\helmet\spresearchwork\Motorcycle-riders-without-helmet-1",
         "mapping": {0: 1, 1: 0}
     },
+    "thien_phuoc": {
+        "path": r"C:\ProjectHate\datasets\helmet\thien_phuoc\Nón-bảo-hiểm-1",
+        "mapping": {0: 1, 1: 0}  # no=without_helmet, yes=with_helmet
+    },
+    "tuandung": {
+        "path": r"C:\ProjectHate\datasets\helmet\tuandung\nón-bảo-hiểm-1",
+        "mapping": {0: 0, 1: 1}  # helmet=with_helmet, non_helmet=without_helmet
+    },
+    "abdullah": {
+        "path": r"C:\ProjectHate\datasets\helmet\abdullah\NO-Helmet-NO-Ride-2",
+        "mapping": {0: 0, 1: 1, 2: None}  # helmet=with_helmet, nohelmet=without_helmet, riders=drop
+    },
+    "alex": {
+        "path": r"C:\ProjectHate\datasets\helmet\alex\motorbike-helmet-3",
+        "mapping": {0: 0}  # helmets=with_helmet only, no without_helmet annotations
+    },
 }
 
 OUTPUT_DIR = r"C:\ProjectHate\datasets\helmet_merged"
