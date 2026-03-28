@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-MODEL_PATH = r"runs/detect/runs/helmet/v2/weights/best.pt"
+MODEL_PATH = r"runs/detect/runs/helmet/v22/weights/best.pt"
 DATA_YAML  = r"datasets/helmet_merged/data.yaml"
 
 if __name__ == "__main__":

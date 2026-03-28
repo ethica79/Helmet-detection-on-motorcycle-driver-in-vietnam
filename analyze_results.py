@@ -1,8 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-CSV_PATH  = r"C:\ProjectHate\runs\detect\runs\helmet\v2\results.csv"
-PLOT_OUT  = r"C:\ProjectHate\runs\detect\runs\helmet\v2\analysis_plots.png"
+CSV_PATH  = r"C:\ProjectHate\runs\detect\runs\helmet\v22\results.csv"
+PLOT_OUT  = r"C:\ProjectHate\runs\detect\runs\helmet\v22\analysis_plots.png"
 
 if __name__ == "__main__":
     df = pd.read_csv(CSV_PATH)

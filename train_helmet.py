@@ -3,9 +3,9 @@ import torch
 
 def main():
     DATA_YAML = r"C:\ProjectHate\datasets\helmet_merged\data.yaml"
-    MODEL     = r"runs/detect/runs/helmet/v14/weights/best.pt"  # Start from the best weights of the previous run"
+    MODEL     = "yolov8s.pt" # Start from the best weights of the previous run"
     PROJECT   = "runs/helmet"
-    RUN_NAME  = "v2"  # Change this for each run to avoid overwriting previous results
+    RUN_NAME  = "v1_S"  # Change this for each run to avoid overwriting previous results
     EPOCHS    = 50
     IMG_SIZE  = 640
     BATCH     = 8
