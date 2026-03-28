@@ -5,7 +5,7 @@ import matplotlib.image as mpimg
 import glob, os
 
 # Find the most recent metrics.json across all val folders
-val_jsons = glob.glob(r"C:\ProjectHate\runs\detect\val*\metrics.json")
+val_jsons = glob.glob(r"C:\ProjectHate\runs\detect\val2\metrics.json")
 METRICS_FILE = max(val_jsons, key=os.path.getmtime)
 
 with open(METRICS_FILE) as f:
@@ -14,7 +14,7 @@ with open(METRICS_FILE) as f:
 VAL_DIR = metrics["save_dir"]
 
 print("=" * 50)
-print("VALIDATION RESULTS — v14 on full test set")
+print("VALIDATION RESULTS — v2 on full test set")
 print("=" * 50)
 print(f"  Precision : {metrics['precision']:.4f}")
 print(f"  Recall    : {metrics['recall']:.4f}")
