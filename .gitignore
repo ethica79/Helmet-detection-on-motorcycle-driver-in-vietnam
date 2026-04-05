@@ -1,4 +1,7 @@
 
+# Environment variables (API keys)
+.env
+
 # Virtual environment
 venv/
 

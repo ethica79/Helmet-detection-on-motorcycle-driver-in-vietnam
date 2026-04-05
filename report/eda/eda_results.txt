@@ -1,0 +1,44 @@
+Loading dataset...
+Done!
+
+1. DATASET OVERVIEW
+-------------------------------------------------------
+Split      Images  Total Boxes   with_helmet   without_helmet
+-------------------------------------------------------
+train        8015        15077    11296 (74.9%)      3781 (25.1%)
+valid        1048         2133     1613 (75.6%)       520 (24.4%)
+test          502          913      613 (67.1%)       300 (32.9%)
+
+2. IMAGE SIZES (pixels)
+-------------------------------------------------------
+                min    max   average
+-------------------------------------------------------
+width           640    640       640
+height          640    640       640
+
+Unique resolutions: 1
+
+Resolution      Count
+-------------------------------------------------------
+640x640          9565
+
+3. BOUNDING BOX SIZES (normalised 0-1)
+-------------------------------------------------------
+Class                Metric      Min    Max   Average
+-------------------------------------------------------
+with_helmet          width     0.004  0.548     0.087
+                     height    0.005  0.864     0.102
+                     area      0.000  0.350     0.013
+
+without_helmet       width     0.012  0.892     0.105
+                     height    0.006  1.000     0.141
+                     area      0.000  0.856     0.021
+
+4. OBJECTS PER IMAGE
+-------------------------------------------------------
+Total images               9565
+Average objects/image      1.89
+Max objects in one image       45
+Images with 0 boxes          13
+
+Done!
