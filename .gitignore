@@ -16,3 +16,5 @@ __pycache__/
 .vscode/
 yolo26n.pt
 yolov8n.pt
+video/traffic1.mp4
+detect_video.py
