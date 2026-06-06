@@ -5,16 +5,15 @@ import glob
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-# CONFIG 
-RUN_NAME = "v4_M"   # change this for each new model
-
+# config
+RUN_NAME = "v4_M"
 
 REPORT_DIR = rf"C:\ProjectHate\report\{RUN_NAME}_validation"
 
-# Auto-find the most recent val*/metrics.json
+# Pick the most recently modified val run — that's the one we just ran
 val_jsons = glob.glob(r"C:\ProjectHate\runs\detect\val*\metrics.json")
 if not val_jsons:
-    raise FileNotFoundError("No validation metrics.json found. Run the val script first.")
+    raise FileNotFoundError("No validation metrics.json found. Run 6_inference.py first.")
 METRICS_FILE = max(val_jsons, key=os.path.getmtime)
 
 with open(METRICS_FILE) as f:
@@ -34,6 +33,7 @@ print("\nPer-class:")
 for cls, m in metrics["per_class"].items():
     print(f"  {cls:<20} P={m['precision']:.3f}  R={m['recall']:.3f}  mAP50={m['mAP50']:.3f}  mAP50-95={m['mAP50_95']:.3f}")
 
+# Collect the plots that YOLO saved into the val run directory
 images = {
     "Confusion Matrix":       os.path.join(VAL_DIR, "confusion_matrix_normalized.png"),
     "Precision-Recall Curve": os.path.join(VAL_DIR, "BoxPR_curve.png"),
@@ -51,7 +51,7 @@ for ax, (title, path) in zip(axes.flat, images.items()):
     ax.set_title(title)
     ax.axis("off")
 
-axes.flat[-1].axis("off")
+axes.flat[-1].axis("off")  # 5 plots in a 2x3 grid, hide the empty last cell
 
 os.makedirs(REPORT_DIR, exist_ok=True)
 analysis_png = os.path.join(REPORT_DIR, f"{RUN_NAME}_val_analysis.png")
@@ -60,6 +60,7 @@ plt.savefig(analysis_png, dpi=150, bbox_inches="tight")
 plt.show()
 print(f"\nPlot saved to {analysis_png}")
 
+# Copy everything into the report folder with consistent naming
 shutil.copy(METRICS_FILE, os.path.join(REPORT_DIR, f"{RUN_NAME}_val_metrics.json"))
 
 for src_name, dst_name in [

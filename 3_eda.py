@@ -1,6 +1,5 @@
 """
-EDA — Exploratory Data Analysis for helmet_merged dataset
-Student-friendly version — no numpy, simple logic only.
+EDA for the helmet_merged dataset.
 """
 
 from pathlib import Path
@@ -17,6 +16,9 @@ def average(lst):
     return sum(lst) / len(lst) if lst else 0
 
 
+# Loads all images for one split and returns a list of records,
+# each containing the image size and a list of (class, box_w, box_h) tuples.
+# We only keep width/height from the box, not the center — enough for size stats.
 def read_split(split):
     img_dir = DATASET_ROOT / split / "images"
     lbl_dir = DATASET_ROOT / split / "labels"
@@ -54,6 +56,7 @@ def read_split(split):
 def main():
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
+    # Write results to both the console and a text file at the same time
     with open(OUTPUT_FILE, "w", encoding="utf-8") as out:
 
         def log(text=""):
@@ -67,7 +70,7 @@ def main():
         all_records = {s: read_split(s) for s in SPLITS}
         log("Done\n")
 
-        # 1. Dataset overview: count images, boxes, class distribution
+        # 1. How many images and boxes per split, and how balanced are the classes
         log("1. DATASET OVERVIEW")
         sep()
         log(f"{'Split':<8} {'Images':>8} {'Total Boxes':>12} {'with_helmet':>13} {'without_helmet':>16}")
@@ -92,7 +95,7 @@ def main():
             log(f"{split:<8} {len(records):>8} {total_boxes:>12} "
                 f"{count_0:>8} ({pct_0:.1f}%)  {count_1:>8} ({pct_1:.1f}%)")
 
-        # 2. Image size stats
+        # 2. Image dimensions — important to know if images are uniform or vary a lot
         log("\n2. IMAGE SIZES (pixels)")
         sep()
 
@@ -118,7 +121,7 @@ def main():
         for size, cnt in sorted_sizes[:10]:
             log(f"{str(size[0])+'x'+str(size[1]):<14} {cnt:>6}")
 
-        # 3. Count bounding box sizes (width, height, area) by class
+        # 3. Bounding box sizes by class — helps understand if objects are small/large
         log("\n3. BOUNDING BOX SIZES (normalised 0-1)")
         sep()
 
@@ -149,7 +152,7 @@ def main():
             log(f"{'':20} {'area':<8} {min(areas):>6.3f} {max(areas):>6.3f} {average(areas):>9.3f}")
             log()
 
-        # 4. Count how many objects are in each image
+        # 4. How many objects per image — flags crowded scenes or empty images
         log("4. OBJECTS PER IMAGE")
         sep()
 

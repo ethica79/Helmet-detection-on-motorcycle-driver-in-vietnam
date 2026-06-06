@@ -3,9 +3,8 @@ import shutil
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# CONFIG 
-RUN_NAME = "v4_M"   # change this for each new model
-
+# config
+RUN_NAME = "v4_M"
 
 RUNS_BASE  = r"C:\ProjectHate\runs\detect\runs\helmet"
 REPORT_DIR = rf"C:\ProjectHate\report\{RUN_NAME}_training"
@@ -15,10 +14,11 @@ CSV_PATH   = os.path.join(RUN_DIR, "results.csv")
 if __name__ == "__main__":
     os.makedirs(REPORT_DIR, exist_ok=True)
 
+    # Back up the raw CSV before doing anything else
     shutil.copy(CSV_PATH, os.path.join(REPORT_DIR, f"{RUN_NAME}_train_results.csv"))
 
     df = pd.read_csv(CSV_PATH)
-    df.columns = df.columns.str.strip()
+    df.columns = df.columns.str.strip()  # YOLO sometimes adds spaces to column names
 
     print("=" * 60)
     print(f"TRAINING SUMMARY — {RUN_NAME}")
@@ -42,6 +42,7 @@ if __name__ == "__main__":
     milestone_df.columns = ['Epoch', 'Precision', 'Recall', 'mAP50', 'mAP50-95']
     print(milestone_df.to_string(index=False))
 
+    # F1 isn't logged by YOLO directly, so we compute it from precision and recall
     df['F1'] = 2 * (df['metrics/precision(B)'] * df['metrics/recall(B)']) / \
                (df['metrics/precision(B)'] + df['metrics/recall(B)'])
 
@@ -85,6 +86,7 @@ if __name__ == "__main__":
     plt.show()
     print(f"\nPlot saved to {plot_out}")
 
+    # Copy the YOLO-generated plots into the report folder with consistent names
     for src_name, dst_name in [
         ("confusion_matrix_normalized.png", f"{RUN_NAME}_train_confusion_matrix.png"),
         ("results.png",                     f"{RUN_NAME}_train_metrics.png"),

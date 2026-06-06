@@ -6,7 +6,10 @@ DATA_YAML  = r"datasets/helmet_merged/projecthate-8/data.yaml"
 
 if __name__ == "__main__":
     from ultralytics import YOLO
+
     model = YOLO(MODEL_PATH)
+
+    # Run validation on the test split and collect per-class metrics
     results = model.val(data=DATA_YAML, split="test")
 
     metrics = {
@@ -26,6 +29,7 @@ if __name__ == "__main__":
         }
     }
 
+    # Save metrics as JSON so 7_analyze_val.py can pick it up
     out = Path(results.save_dir) / "metrics.json"
     with open(out, "w") as f:
         json.dump(metrics, f, indent=2)

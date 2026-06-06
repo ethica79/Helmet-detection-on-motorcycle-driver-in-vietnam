@@ -10,6 +10,9 @@ BASE_DIR = os.path.join(ROOT_DIR, "datasets")
 
 rf = Roboflow(api_key=API_KEY)
 
+# The merged dataset we actually use for training.
+# The commented-out entries below are the original sources that were
+# combined into "ProjectHate" on Roboflow — kept here for reference.
 helmet_datasets = [
     {
         "name": "ProjectHate (merged + augmented)",
@@ -19,15 +22,19 @@ helmet_datasets = [
         "save_dir": os.path.join(BASE_DIR, "helmet_merged")
     },
     # Original datasets merged into "ProjectHate" above:
-    # - NCKH-2023 (Vietnamese):         workspace=nckh-2023,               project=helmet-detection-project,           version=19
-    # - Helmet & No-Helmet Rider:        workspace=gw-khadatkar-and-sv-wasule, project=helmet-and-no-helmet-rider-detection, version=6
-    # - Motorcycle Riders Without Helmet: workspace=spresearchwork,           project=motorcycle-riders-without-helmet,   version=1
-    # - Non Bao Hiem (thien-phuoc):      workspace=thien-phuoc,             project=non-bao-hiem,                       version=1
-    # - Non Bao Hiem (tuandung):         workspace=tuandung-3ed5z,          project=non-bao-hiem-n5bdk,                 version=1
-    # - No Helmet No Ride (abdullah):    workspace=abdullah-kqdi3,          project=no-helmet-no-ride,                  version=2
-    # - Motorbike Helmet (alex):         workspace=alex-56cf0,              project=motorbike-helmet,                   version=3
+    # - NCKH-2023 (Vietnamese):            workspace=nckh-2023,                  project=helmet-detection-project,            version=19
+    # - Helmet & No-Helmet Rider:           workspace=gw-khadatkar-and-sv-wasule, project=helmet-and-no-helmet-rider-detection, version=6
+    # - Motorcycle Riders Without Helmet:   workspace=spresearchwork,              project=motorcycle-riders-without-helmet,    version=1
+    # - Non Bao Hiem (thien-phuoc):         workspace=thien-phuoc,                project=non-bao-hiem,                        version=1
+    # - Non Bao Hiem (tuandung):            workspace=tuandung-3ed5z,             project=non-bao-hiem-n5bdk,                  version=1
+    # - No Helmet No Ride (abdullah):       workspace=abdullah-kqdi3,             project=no-helmet-no-ride,                   version=2
+    # - Motorbike Helmet (alex):            workspace=alex-56cf0,                 project=motorbike-helmet,                    version=3
 ]
 
+
+# Roboflow's SDK downloads into the current working directory,
+# so we cd into the target folder before downloading, then always
+# return to ROOT_DIR in the finally block regardless of success/failure.
 def download(workspace, project_name, version_num, save_dir, fmt="yolov8"):
     os.makedirs(save_dir, exist_ok=True)
     os.chdir(save_dir)
@@ -40,15 +47,15 @@ def download(workspace, project_name, version_num, save_dir, fmt="yolov8"):
     finally:
         os.chdir(ROOT_DIR)
 
-print("=" * 50)
-print("Starting helmet dataset downloads")
-print("=" * 50)
+
+print("Starting helmet dataset downloads...")
 
 for ds in helmet_datasets:
+    # Skip if the folder already exists and has files in it
     if os.path.exists(ds["save_dir"]) and os.listdir(ds["save_dir"]):
-        print(f"\n Already exists, skipping: {ds['name']}")
+        print(f"Already exists, skipping: {ds['name']}")
         continue
-    print(f"\n  Downloading: {ds['name']}")
+    print(f"Downloading: {ds['name']}")
     success = download(
         ds["workspace"],
         ds["project"],
@@ -57,10 +64,8 @@ for ds in helmet_datasets:
         fmt=ds.get("format", "yolov8")
     )
     if success:
-        print(f"Saved to: {ds['save_dir']}")
+        print(f"  Saved to: {ds['save_dir']}")
     else:
-        print(f"Skipped: {ds['name']}")
+        print(f"  Failed: {ds['name']}")
 
-print("\n" + "=" * 50)
-print("Download complete!")
-print("=" * 50)
+print("Done.")
