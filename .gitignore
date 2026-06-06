@@ -10,6 +10,8 @@ datasets/
 
 # Training runs/outputs
 runs/
+data/
+report/
 
 # Python cache
 __pycache__/

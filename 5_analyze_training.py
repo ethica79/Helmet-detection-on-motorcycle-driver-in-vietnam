@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # CONFIG 
-RUN_NAME = "v3_S"   # change this for each new model
+RUN_NAME = "v4_M"   # change this for each new model
 
 
 RUNS_BASE  = r"C:\ProjectHate\runs\detect\runs\helmet"

@@ -2,9 +2,9 @@ import cv2
 from ultralytics import YOLO
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
-MODEL_PATH = r"C:\ProjectHate\runs\detect\runs\helmet\v1_S\weights\best.pt"
-SOURCE     = r"C:\ProjectHate\video\traffic1.mp4"          # 0 = webcam, or path to video e.g. r"C:\video.mp4"
-CONF       = 0.4        # confidence threshold
+MODEL_PATH = r"C:\ProjectHate\runs\detect\runs\helmet\v4_M\weights\best.pt"
+SOURCE     = 0 #r"C:\ProjectHate\video\traffic1.mp4"          # 0 = webcam, or path to video e.g. r"C:\video.mp4"
+CONF       = 0.5       # confidence threshold
 SAVE_OUT   = False      # set True to save annotated video
 OUT_PATH   = r"C:\ProjectHate\output.mp4"
 # ─────────────────────────────────────────────────────────────────────────────

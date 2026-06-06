@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helmet Violation Detection</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  header {
+    border-bottom: 1px solid #21262d;
+    padding-bottom: 16px;
+    margin-bottom: 28px;
+  }
+
+  header h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #e6edf3;
+    letter-spacing: 0.5px;
+  }
+
+  header p {
+    font-size: 0.82rem;
+    color: #8b949e;
+    margin-top: 4px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .card h2 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #e6edf3;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .badge {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+  .badge-blue  { background: #1f3a5f; color: #79c0ff; }
+  .badge-green { background: #1a3a1a; color: #56d364; }
+
+  label {
+    display: block;
+    font-size: 0.78rem;
+    color: #8b949e;
+    margin-bottom: 5px;
+  }
+
+  input[type="text"], input[type="file"] {
+    width: 100%;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #c9d1d9;
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.15s;
+    margin-bottom: 10px;
+  }
+
+  input[type="text"]:focus, input[type="file"]:focus {
+    border-color: #58a6ff;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  button {
+    padding: 7px 16px;
+    border-radius: 6px;
+    border: 1px solid;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  button:hover { opacity: 0.8; }
+  button:disabled { opacity: 0.4; cursor: default; }
+
+  .btn-primary {
+    background: #238636;
+    border-color: #2ea043;
+    color: #fff;
+  }
+
+  .btn-danger {
+    background: #b62324;
+    border-color: #da3633;
+    color: #fff;
+  }
+
+  .btn-default {
+    background: #21262d;
+    border-color: #30363d;
+    color: #c9d1d9;
+  }
+
+  .status {
+    font-size: 0.78rem;
+    padding: 6px 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: none;
+  }
+
+  .status.info    { background: #1f3a5f; color: #79c0ff; display: block; }
+  .status.success { background: #1a3a1a; color: #56d364; display: block; }
+  .status.error   { background: #3a1a1a; color: #f85149; display: block; }
+
+  .media-box {
+    background: #0d1117;
+    border: 1px dashed #30363d;
+    border-radius: 6px;
+    min-height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .media-box .placeholder {
+    color: #484f58;
+    font-size: 0.82rem;
+    text-align: center;
+  }
+
+  .media-box img,
+  .media-box video {
+    max-width: 100%;
+    max-height: 480px;
+    display: none;
+    border-radius: 4px;
+  }
+
+  .media-box img.active,
+  .media-box video.active {
+    display: block;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #21262d;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    display: none;
+  }
+
+  .progress-bar.active { display: block; }
+
+  .progress-fill {
+    height: 100%;
+    background: #58a6ff;
+    width: 0%;
+    transition: width 0.3s;
+    animation: indeterminate 1.4s infinite;
+  }
+
+  @keyframes indeterminate {
+    0%   { transform: translateX(-100%); width: 60%; }
+    100% { transform: translateX(200%);  width: 60%; }
+  }
+
+  .legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    font-size: 0.75rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Helmet Violation Detection</h1>
+  <p>Two-model pipeline &mdash; helmet detector (v4_M) + motorcycle detector &mdash; asymmetric zone association</p>
+</header>
+
+<div class="grid">
+
+  <!-- ─── Upload Card ─── -->
+  <div class="card">
+    <h2>
+      Upload Video
+      <span class="badge badge-blue">offline</span>
+    </h2>
+
+    <label>Select video file</label>
+    <input type="file" id="videoFile" accept="video/*">
+
+    <div class="btn-row">
+      <button class="btn-primary" id="uploadBtn" onclick="uploadVideo()">Process</button>
+      <button class="btn-default" onclick="clearUpload()">Clear</button>
+    </div>
+
+    <div id="uploadStatus" class="status"></div>
+    <div class="progress-bar" id="uploadProgress"><div class="progress-fill"></div></div>
+
+    <div class="legend">
+      <span class="legend-item"><span class="dot" style="background:#00c800"></span>helmet</span>
+      <span class="legend-item"><span class="dot" style="background:#ff2020"></span>violation</span>
+      <span class="legend-item"><span class="dot" style="background:#00c8c8"></span>pedestrian (suppressed)</span>
+      <span class="legend-item"><span class="dot" style="background:#c87800"></span>motorcycle</span>
+    </div>
+
+    <div class="media-box" id="uploadBox">
+      <span class="placeholder">Processed video will appear here</span>
+      <video id="resultVideo" controls></video>
+    </div>
+  </div>
+
+  <!-- ─── Stream Card ─── -->
+  <div class="card">
+    <h2>
+      Live Stream
+      <span class="badge badge-green" id="streamBadge">stopped</span>
+    </h2>
+
+    <label>RTSP URL or webcam index (0, 1, …)</label>
+    <input type="text" id="streamSource" placeholder="rtsp://192.168.1.10/stream  or  0" value="0">
+
+    <div class="btn-row">
+      <button class="btn-primary" id="startBtn" onclick="startStream()">Start</button>
+      <button class="btn-danger"  id="stopBtn"  onclick="stopStream()" disabled>Stop</button>
+    </div>
+
+    <div id="streamStatus" class="status"></div>
+
+    <div class="legend">
+      <span class="legend-item"><span class="dot" style="background:#00c800"></span>helmet</span>
+      <span class="legend-item"><span class="dot" style="background:#ff2020"></span>violation</span>
+      <span class="legend-item"><span class="dot" style="background:#00c8c8"></span>pedestrian (suppressed)</span>
+      <span class="legend-item"><span class="dot" style="background:#c87800"></span>motorcycle</span>
+    </div>
+
+    <div class="media-box" id="streamBox">
+      <span class="placeholder" id="streamPlaceholder">Stream will appear here after Start</span>
+      <img id="streamImg" alt="live stream">
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── Upload ──────────────────────────────────────────────────────────────────
+
+function setUploadStatus(msg, type) {
+  const el = document.getElementById('uploadStatus');
+  el.textContent = msg;
+  el.className = 'status ' + type;
+}
+
+async function uploadVideo() {
+  const fileInput = document.getElementById('videoFile');
+  if (!fileInput.files.length) {
+    setUploadStatus('Please select a video file first.', 'error');
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const btn  = document.getElementById('uploadBtn');
+  const prog = document.getElementById('uploadProgress');
+  const box  = document.getElementById('uploadBox');
+  const vid  = document.getElementById('resultVideo');
+
+  btn.disabled = true;
+  prog.classList.add('active');
+  vid.classList.remove('active');
+  box.querySelector('.placeholder').style.display = 'flex';
+  setUploadStatus(`Uploading "${file.name}" (${(file.size / 1024 / 1024).toFixed(1)} MB)…`, 'info');
+
+  try {
+    const form = new FormData();
+    form.append('file', file);
+
+    const res = await fetch('/upload', { method: 'POST', body: form });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Server error ${res.status}: ${text}`);
+    }
+
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+
+    vid.src = url;
+    vid.classList.add('active');
+    box.querySelector('.placeholder').style.display = 'none';
+    setUploadStatus('Done — annotated video ready below.', 'success');
+
+  } catch (err) {
+    setUploadStatus('Error: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    prog.classList.remove('active');
+  }
+}
+
+function clearUpload() {
+  const vid = document.getElementById('resultVideo');
+  vid.src = '';
+  vid.classList.remove('active');
+  document.getElementById('uploadBox').querySelector('.placeholder').style.display = 'flex';
+  document.getElementById('uploadStatus').className = 'status';
+  document.getElementById('videoFile').value = '';
+}
+
+// ─── Stream ───────────────────────────────────────────────────────────────────
+
+function startStream() {
+  const src    = document.getElementById('streamSource').value.trim();
+  const img    = document.getElementById('streamImg');
+  const box    = document.getElementById('streamBox');
+  const badge  = document.getElementById('streamBadge');
+  const status = document.getElementById('streamStatus');
+  const ph     = document.getElementById('streamPlaceholder');
+
+  if (!src) {
+    status.textContent = 'Enter a source first.';
+    status.className   = 'status error';
+    return;
+  }
+
+  img.src = '/stream?source=' + encodeURIComponent(src);
+  img.classList.add('active');
+  ph.style.display = 'none';
+  badge.textContent = 'live';
+  badge.style.background = '#1a3a1a';
+  badge.style.color       = '#56d364';
+  status.textContent = 'Connecting to ' + src + '…';
+  status.className   = 'status info';
+
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled  = false;
+
+  img.onload = () => {
+    status.textContent = 'Streaming from ' + src;
+    status.className   = 'status success';
+  };
+
+  img.onerror = () => {
+    stopStream();
+    status.textContent = 'Could not connect to source.';
+    status.className   = 'status error';
+  };
+}
+
+function stopStream() {
+  const img   = document.getElementById('streamImg');
+  const badge = document.getElementById('streamBadge');
+  const ph    = document.getElementById('streamPlaceholder');
+
+  img.src = '';
+  img.classList.remove('active');
+  ph.style.display = 'flex';
+  badge.textContent = 'stopped';
+  badge.style.background = '';
+  badge.style.color       = '';
+  document.getElementById('streamStatus').className = 'status';
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled  = true;
+}
+</script>
+
+</body>
+</html>

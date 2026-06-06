@@ -2,13 +2,13 @@ from ultralytics import YOLO
 import torch
 
 def main():
-    DATA_YAML = r"C:\ProjectHate\datasets\helmet_merged\projecthate-2\data.yaml"
-    MODEL     = "yolov8m.pt"  # Fresh start with medium model
+    DATA_YAML = r"C:\ProjectHate\datasets\helmet_merged\projecthate-8\data.yaml"
+    MODEL     = "yolov8m.pt"  # Fresh start
     PROJECT   = "runs/helmet"
-    RUN_NAME  = "v1_M"  # Change this for each run to avoid overwriting previous results
+    RUN_NAME  = "v4_M"        # Fresh start on Dataset 8 (55/45 class ratio)
     EPOCHS    = 100
     IMG_SIZE  = 640
-    BATCH     = 4  
+    BATCH     = 4
 
     print(f"Using device: {'GPU' if torch.cuda.is_available() else 'CPU'}")
 
@@ -21,10 +21,11 @@ def main():
         batch    = BATCH,
         project  = PROJECT,
         name     = RUN_NAME,
-        patience = 30,
+        patience = 20,
         save     = True,
         plots    = True,
         workers  = 0,
+        cls      = 1.0,
         device   = "0" if torch.cuda.is_available() else "cpu",
     )
 

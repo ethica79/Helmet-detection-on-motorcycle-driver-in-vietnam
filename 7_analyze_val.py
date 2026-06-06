@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
 # CONFIG 
-RUN_NAME = "v1_M"   # change this for each new model
+RUN_NAME = "v4_M"   # change this for each new model
 
 
 REPORT_DIR = rf"C:\ProjectHate\report\{RUN_NAME}_validation"

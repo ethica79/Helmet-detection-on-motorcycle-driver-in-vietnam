@@ -1,5 +1,4 @@
 import os
-import time
 from pathlib import Path
 from roboflow import Roboflow
 from dotenv import load_dotenv
@@ -16,7 +15,7 @@ helmet_datasets = [
         "name": "ProjectHate (merged + augmented)",
         "workspace": "therences-workspace",
         "project": "projecthate",
-        "version": 3,
+        "version": 8,
         "save_dir": os.path.join(BASE_DIR, "helmet_merged")
     },
     # Original datasets merged into "ProjectHate" above:
@@ -29,36 +28,28 @@ helmet_datasets = [
     # - Motorbike Helmet (alex):         workspace=alex-56cf0,              project=motorbike-helmet,                   version=3
 ]
 
-def download_with_retry(workspace, project_name, version_num, save_dir, fmt="yolov8", max_retries=5):
-    for attempt in range(1, max_retries + 1):
-        try:
-            os.makedirs(save_dir, exist_ok=True)
-            os.chdir(save_dir)
-            project = rf.workspace(workspace).project(project_name)
-            version = project.version(version_num)
-            version.download(fmt)
-            os.chdir(ROOT_DIR)  # always return to absolute root
-            return True
-        except Exception as e:
-            os.chdir(ROOT_DIR)
-            if attempt < max_retries:
-                wait = attempt * 5
-                print(f"   ⚠️  Attempt {attempt} failed. Retrying in {wait}s...")
-                time.sleep(wait)
-            else:
-                print(f"Failed after {max_retries} attempts: {e}")
-                return False
+def download(workspace, project_name, version_num, save_dir, fmt="yolov8"):
+    os.makedirs(save_dir, exist_ok=True)
+    os.chdir(save_dir)
+    try:
+        rf.workspace(workspace).project(project_name).version(version_num).download(fmt)
+        return True
+    except Exception as e:
+        print(f"Download failed: {e}")
+        return False
+    finally:
+        os.chdir(ROOT_DIR)
 
 print("=" * 50)
-print("Starting helmet dataset downloads...")
+print("Starting helmet dataset downloads")
 print("=" * 50)
 
 for ds in helmet_datasets:
     if os.path.exists(ds["save_dir"]) and os.listdir(ds["save_dir"]):
-        print(f"\n✅ Already exists, skipping: {ds['name']}")
+        print(f"\n Already exists, skipping: {ds['name']}")
         continue
-    print(f"\n⬇️  Downloading: {ds['name']}")
-    success = download_with_retry(
+    print(f"\n  Downloading: {ds['name']}")
+    success = download(
         ds["workspace"],
         ds["project"],
         ds["version"],

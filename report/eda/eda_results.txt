@@ -5,9 +5,9 @@ Done!
 -------------------------------------------------------
 Split      Images  Total Boxes   with_helmet   without_helmet
 -------------------------------------------------------
-train        8015        15077    11296 (74.9%)      3781 (25.1%)
-valid        1048         2133     1613 (75.6%)       520 (24.4%)
-test          502          913      613 (67.1%)       300 (32.9%)
+train       23580        41590    22636 (54.4%)     18954 (45.6%)
+valid        2170         4115     2321 (56.4%)      1794 (43.6%)
+test         1491         2781     1526 (54.9%)      1255 (45.1%)
 
 2. IMAGE SIZES (pixels)
 -------------------------------------------------------
@@ -20,25 +20,25 @@ Unique resolutions: 1
 
 Resolution      Count
 -------------------------------------------------------
-640x640          9565
+640x640         27241
 
 3. BOUNDING BOX SIZES (normalised 0-1)
 -------------------------------------------------------
 Class                Metric      Min    Max   Average
 -------------------------------------------------------
-with_helmet          width     0.004  0.548     0.087
-                     height    0.005  0.864     0.102
-                     area      0.000  0.350     0.013
+with_helmet          width     0.001  0.997     0.096
+                     height    0.001  1.000     0.111
+                     area      0.000  0.952     0.017
 
-without_helmet       width     0.012  0.892     0.105
-                     height    0.006  1.000     0.141
-                     area      0.000  0.856     0.021
+without_helmet       width     0.001  0.892     0.100
+                     height    0.001  0.988     0.135
+                     area      0.000  0.856     0.018
 
 4. OBJECTS PER IMAGE
 -------------------------------------------------------
-Total images               9565
-Average objects/image      1.89
-Max objects in one image       45
-Images with 0 boxes          13
+Total images              27241
+Average objects/image      1.78
+Max objects in one image       55
+Images with 0 boxes          30
 
 Done!

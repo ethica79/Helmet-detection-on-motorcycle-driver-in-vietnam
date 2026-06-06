@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-MODEL_PATH = r"runs/detect/runs/helmet/v3_S/weights/best.pt"
-DATA_YAML  = r"datasets/helmet_merged/projecthate-2/data.yaml"
+MODEL_PATH = r"C:\ProjectHate\runs\detect\runs\helmet\v4_M\weights\best.pt"
+DATA_YAML  = r"datasets/helmet_merged/projecthate-8/data.yaml"
 
 if __name__ == "__main__":
     from ultralytics import YOLO
