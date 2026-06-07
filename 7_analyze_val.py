@@ -8,10 +8,10 @@ import matplotlib.image as mpimg
 # config
 RUN_NAME = "v4_M"
 
-REPORT_DIR = rf"C:\ProjectHate\report\{RUN_NAME}_validation"
+REPORT_DIR = rf"C:\ProjectHD\report\{RUN_NAME}_validation"
 
 # Pick the most recently modified val run — that's the one we just ran
-val_jsons = glob.glob(r"C:\ProjectHate\runs\detect\val*\metrics.json")
+val_jsons = glob.glob(r"C:\ProjectHD\runs\detect\val*\metrics.json")
 if not val_jsons:
     raise FileNotFoundError("No validation metrics.json found. Run 6_inference.py first.")
 METRICS_FILE = max(val_jsons, key=os.path.getmtime)

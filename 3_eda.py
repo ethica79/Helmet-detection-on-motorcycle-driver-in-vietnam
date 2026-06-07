@@ -6,10 +6,10 @@ from pathlib import Path
 from collections import defaultdict
 from PIL import Image
 
-DATASET_ROOT = Path(r"C:\ProjectHate\datasets\helmet_merged\projecthate-8")
+DATASET_ROOT = Path(r"C:\ProjectHD\datasets\helmet_merged\projecthate-8")
 SPLITS       = ["train", "valid", "test"]
 CLASS_NAMES  = {0: "with_helmet", 1: "without_helmet"}
-OUTPUT_FILE  = Path(r"C:\ProjectHate\report\eda\eda_results.txt")
+OUTPUT_FILE  = Path(r"C:\ProjectHD\report\eda\eda_results.txt")
 
 
 def average(lst):

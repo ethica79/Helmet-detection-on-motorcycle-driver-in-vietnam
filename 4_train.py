@@ -3,7 +3,7 @@ import torch
 
 
 def main():
-    DATA_YAML = r"C:\ProjectHate\datasets\helmet_merged\projecthate-8\data.yaml"
+    DATA_YAML = r"C:\ProjectHD\datasets\helmet_merged\projecthate-8\data.yaml"
     MODEL     = "yolov8m.pt"
     PROJECT   = "runs/helmet"
     RUN_NAME  = "v4_M"

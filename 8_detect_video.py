@@ -2,11 +2,11 @@ import cv2
 from ultralytics import YOLO
 
 # config
-MODEL_PATH = r"C:\ProjectHate\runs\detect\runs\helmet\v4_M\weights\best.pt"
+MODEL_PATH = r"C:\ProjectHD\runs\detect\runs\helmet\v4_M\weights\best.pt"
 SOURCE     = 0  # 0 = webcam, or path to a video file
 CONF       = 0.5
 SAVE_OUT   = False
-OUT_PATH   = r"C:\ProjectHate\output.mp4"
+OUT_PATH   = r"C:\ProjectHD\output.mp4"
 
 COLORS = {0: (0, 200, 0), 1: (0, 0, 220)}  # green = with_helmet, red = without_helmet
 NAMES  = {0: "with helmet", 1: "no helmet"}

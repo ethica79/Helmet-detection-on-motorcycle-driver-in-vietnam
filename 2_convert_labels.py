@@ -6,7 +6,7 @@ and convert any polygon/segmentation labels to bounding boxes.
 from pathlib import Path
 import yaml
 
-DATASET_ROOT = Path(r"C:\ProjectHate\datasets\helmet_merged\projecthate-8")
+DATASET_ROOT = Path(r"C:\ProjectHD\datasets\helmet_merged\projecthate-8")
 SPLITS       = ["train", "valid", "test"]
 
 # Each source dataset uses slightly different class names for the same thing.

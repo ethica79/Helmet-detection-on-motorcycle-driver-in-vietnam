@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 # config
 RUN_NAME = "v4_M"
 
-RUNS_BASE  = r"C:\ProjectHate\runs\detect\runs\helmet"
-REPORT_DIR = rf"C:\ProjectHate\report\{RUN_NAME}_training"
+RUNS_BASE  = r"C:\ProjectHD\runs\detect\runs\helmet"
+REPORT_DIR = rf"C:\ProjectHD\report\{RUN_NAME}_training"
 RUN_DIR    = os.path.join(RUNS_BASE, RUN_NAME)
 CSV_PATH   = os.path.join(RUN_DIR, "results.csv")
 

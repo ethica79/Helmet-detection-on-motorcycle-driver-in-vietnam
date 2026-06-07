@@ -129,8 +129,6 @@ def run_pipeline(frame_bgr: np.ndarray) -> np.ndarray:
     return out
 
 
-# Gradio wrapper functions
-
 def detect_image(img_rgb: np.ndarray) -> np.ndarray:
     """Gradio passes RGB; pipeline expects BGR."""
     if img_rgb is None:
@@ -192,28 +190,11 @@ with gr.Blocks(title="Helmet Violation Detection", theme=gr.themes.Base()) as de
 
     gr.Markdown(
         "# Helmet Violation Detection\n"
-        "Two-model pipeline: **helmet detector** (YOLOv8m, v4_M) "
-        "+ **motorcycle detector** with asymmetric zone association.\n\n"
         "Green: with helmet &nbsp;|&nbsp; Red: violation (no helmet on motorcycle) "
         "&nbsp;|&nbsp; Cyan: suppressed (pedestrian) &nbsp;|&nbsp; Orange: motorcycle"
     )
 
     with gr.Tabs():
-
-        with gr.Tab("Image"):
-            with gr.Row():
-                img_in  = gr.Image(sources=["upload"], label="Input image", type="numpy")
-                img_out = gr.Image(label="Detection result", type="numpy")
-            gr.Button("Detect", variant="primary").click(
-                fn=detect_image, inputs=img_in, outputs=img_out
-            )
-
-        with gr.Tab("Webcam (live)"):
-            with gr.Row():
-                cam_in  = gr.Image(sources=["webcam"], streaming=True,
-                                   label="Webcam feed", type="numpy")
-                cam_out = gr.Image(label="Detection result", type="numpy")
-            cam_in.stream(fn=detect_image, inputs=cam_in, outputs=cam_out)
 
         with gr.Tab("Video"):
             with gr.Row():
@@ -222,5 +203,12 @@ with gr.Blocks(title="Helmet Violation Detection", theme=gr.themes.Base()) as de
             gr.Button("Process video", variant="primary").click(
                 fn=detect_video, inputs=vid_in, outputs=vid_out
             )
+
+        with gr.Tab("Webcam (live)"):
+            with gr.Row():
+                cam_in  = gr.Image(sources=["webcam"], streaming=True,
+                                   label="Webcam feed", type="numpy")
+                cam_out = gr.Image(label="Detection result", type="numpy")
+            cam_in.stream(fn=detect_image, inputs=cam_in, outputs=cam_out)
 
 demo.launch()

@@ -5,23 +5,23 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parent / ".env")
 API_KEY = os.getenv("ROBOFLOW_API_KEY")
-ROOT_DIR = r"C:\ProjectHate"
+ROOT_DIR = r"C:\ProjectHD"
 BASE_DIR = os.path.join(ROOT_DIR, "datasets")
 
 rf = Roboflow(api_key=API_KEY)
 
 # The merged dataset we actually use for training.
 # The commented-out entries below are the original sources that were
-# combined into "ProjectHate" on Roboflow — kept here for reference.
+# combined into "ProjectHD" on Roboflow — kept here for reference.
 helmet_datasets = [
     {
-        "name": "ProjectHate (merged + augmented)",
+        "name": "ProjectHD (merged + augmented)",
         "workspace": "therences-workspace",
         "project": "projecthate",
         "version": 8,
         "save_dir": os.path.join(BASE_DIR, "helmet_merged")
     },
-    # Original datasets merged into "ProjectHate" above:
+    # Original datasets merged into "ProjectHD" above:
     # - NCKH-2023 (Vietnamese):            workspace=nckh-2023,                  project=helmet-detection-project,            version=19
     # - Helmet & No-Helmet Rider:           workspace=gw-khadatkar-and-sv-wasule, project=helmet-and-no-helmet-rider-detection, version=6
     # - Motorcycle Riders Without Helmet:   workspace=spresearchwork,              project=motorcycle-riders-without-helmet,    version=1
