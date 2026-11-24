@@ -32,7 +32,7 @@ class ViolationPipeline:
         self.moto_weights = resolve(cfg["models"]["moto_weights"])
         self.helmet_conf = float(cfg["inference"]["helmet_conf"])
         self.moto_conf = float(cfg["inference"]["moto_conf"])
-        self.factors = ExpansionFactors(**cfg["association"])
+        self.factors = ExpansionFactors.from_config(cfg["association"])
         self.with_id = int(cfg["classes"]["with_helmet"])
         self.without_id = int(cfg["classes"]["without_helmet"])
         self._models: tuple[YOLO, YOLO] | None = None

@@ -23,6 +23,11 @@ class ExpansionFactors:
     up: float = 2.0
     down: float = 0.1
 
+    @classmethod
+    def from_config(cls, section: dict[str, float]) -> ExpansionFactors:
+        """Build from the ``association`` section of the config."""
+        return cls(x=section["expand_x"], up=section["expand_up"], down=section["expand_down"])
+
 
 @dataclass
 class AssociationResult:
