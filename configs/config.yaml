@@ -11,8 +11,10 @@ paths:
 models:
   # Final helmet model (v4_M, YOLOv8m). Download from the GitHub Release, see README.
   helmet_weights: weights/helmet_v4_M.pt
-  # Third-party motorcycle detector (KhaiTrang1995/motorcycle-detection-yolov8).
-  moto_weights: weights/motorcycle_yolov8.pt
+  # Motorcycle detector: stock COCO-pretrained YOLOv8s, downloaded automatically.
+  # (The thesis code loaded it as "yolov8Motorcyle.pt"; the weights are identical.)
+  moto_weights: yolov8s.pt
+  moto_classes: [motorcycle]   # COCO class(es) that define an association zone
 
 classes:
   with_helmet: 0

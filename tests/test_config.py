@@ -17,3 +17,9 @@ def test_expansion_factors_from_config():
     from helmet_detection.association import ExpansionFactors
 
     assert ExpansionFactors.from_config(load_config()["association"]) == ExpansionFactors(1.3, 2.0, 0.1)
+
+
+def test_motorcycle_zones_use_only_motorcycle_class():
+    # The motorcycle model is a multi-class COCO detector; using all its
+    # classes would let pedestrians' own "person" boxes confirm violations.
+    assert load_config()["models"]["moto_classes"] == ["motorcycle"]

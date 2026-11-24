@@ -20,7 +20,6 @@ static/
 # Model weights: stock Ultralytics checkpoints download automatically,
 # the trained helmet model is published as a GitHub Release asset.
 *.pt
-!weights/motorcycle_yolov8.pt
 
 # Python
 __pycache__/

@@ -29,24 +29,35 @@ class ViolationPipeline:
 
     def __init__(self, cfg: dict[str, Any]) -> None:
         self.helmet_weights = resolve(cfg["models"]["helmet_weights"])
-        self.moto_weights = resolve(cfg["models"]["moto_weights"])
+        # A bare name such as "yolov8s.pt" is a stock checkpoint Ultralytics downloads itself
+        moto = cfg["models"]["moto_weights"]
+        self.moto_weights = moto if Path(moto).name == moto else str(resolve(moto))
+        self.moto_class_names = list(cfg["models"]["moto_classes"])
         self.helmet_conf = float(cfg["inference"]["helmet_conf"])
         self.moto_conf = float(cfg["inference"]["moto_conf"])
         self.factors = ExpansionFactors.from_config(cfg["association"])
         self.with_id = int(cfg["classes"]["with_helmet"])
         self.without_id = int(cfg["classes"]["without_helmet"])
         self._models: tuple[YOLO, YOLO] | None = None
+        self._moto_class_ids: list[int] = []
         self._lock = threading.Lock()
 
     def _load(self) -> tuple[YOLO, YOLO]:
         with self._lock:
             if self._models is None:
-                for p in (self.helmet_weights, self.moto_weights):
-                    if not Path(p).exists():
-                        raise FileNotFoundError(
-                            f"Weights not found: {p}. See README > Model weights."
-                        )
-                self._models = (YOLO(str(self.helmet_weights)), YOLO(str(self.moto_weights)))
+                if not self.helmet_weights.exists():
+                    raise FileNotFoundError(
+                        f"Weights not found: {self.helmet_weights}. See README > Model weights."
+                    )
+                moto_model = YOLO(self.moto_weights)
+                # The motorcycle model is a multi-class COCO detector: keep only the
+                # configured classes, otherwise people and cars also create zones.
+                name_to_id = {n: i for i, n in moto_model.names.items()}
+                missing = [n for n in self.moto_class_names if n not in name_to_id]
+                if missing:
+                    raise ValueError(f"Classes {missing} not in motorcycle model {self.moto_weights}")
+                self._moto_class_ids = [name_to_id[n] for n in self.moto_class_names]
+                self._models = (YOLO(str(self.helmet_weights)), moto_model)
         return self._models
 
     def detect(self, frame_bgr: np.ndarray) -> tuple[AssociationResult, list[Box]]:
@@ -55,7 +66,8 @@ class ViolationPipeline:
         img_h, img_w = frame_bgr.shape[:2]
 
         h_res = helmet_model(frame_bgr, conf=self.helmet_conf, verbose=False)[0]
-        m_res = moto_model(frame_bgr, conf=self.moto_conf, verbose=False)[0]
+        m_res = moto_model(frame_bgr, conf=self.moto_conf,
+                           classes=self._moto_class_ids, verbose=False)[0]
 
         moto_boxes: list[Box] = [tuple(b) for b in m_res.boxes.xyxy.tolist()]
         helmet_dets = [
