@@ -1,25 +1,33 @@
-
-# Environment variables (API keys)
+# Secrets
 .env
 
-# Virtual environment
+# Virtual environments
 venv/
+.venv/
 
-# Datasets (too large for GitHub)
+# Datasets, training runs and generated outputs (too large for git)
 datasets/
-
-# Training runs/outputs
 runs/
 data/
 report/
+reports/
+outputs/
+video/
 
-# Python cache
+# Legacy static page (no backend; superseded by the Gradio app)
+static/
+
+# Model weights: stock Ultralytics checkpoints download automatically,
+# the trained helmet model is published as a GitHub Release asset.
+*.pt
+!weights/motorcycle_yolov8.pt
+
+# Python
 __pycache__/
 *.pyc
+.pytest_cache/
+*.egg-info/
 
-# VS Code
+# Editors
 .vscode/
-yolo26n.pt
-yolov8n.pt
-video/traffic1.mp4
-detect_video.py
+.idea/
