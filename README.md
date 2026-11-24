@@ -30,11 +30,14 @@ frame ──► Helmet model (YOLOv8m, trained here) ──► with_helmet / wit
       └─► Motorcycle model (COCO YOLOv8s, class "motorcycle") ──► expanded zones ──────┴─► violation / suppressed
 ```
 
-- **Dataset:** 27,241 real images (no augmented copies) merged from 7 public
-  Roboflow Universe datasets. Class names from the different sources were mapped
-  to 2 classes, polygon labels were converted to boxes, and several thousand
-  labels were annotated or corrected by hand. Split: 23,580 train / 2,170 val /
-  1,491 test, about 55/45 `with_helmet`/`without_helmet`.
+- **Dataset:** 15,451 unique images merged from public Roboflow Universe
+  datasets (7 main sources, listed in `scripts/01_download.py`, plus several
+  small datasets added later to strengthen the violation class). Class names from the different sources were mapped to 2 classes,
+  polygon labels were converted to boxes, and several thousand labels were
+  annotated or corrected by hand. Split: 11,790 train / 2,170 val / 1,491 test.
+  The training set was augmented ×2 on Roboflow (15% grayscale, ±15% brightness),
+  giving 23,580 training images (27,241 in total). Validation and test images
+  are not augmented. Boxes are about 55/45 `with_helmet`/`without_helmet`.
 - **Training:** an ablation study of 10 runs over 5 dataset versions
   (YOLOv8n/s/m, COCO-pretrained), on a single RTX 3050 Laptop GPU with 4 GB
   VRAM (batch size 4–8 at 640×640).
@@ -133,7 +136,8 @@ cp .env.example .env                       # add your Roboflow API key
 python scripts/01_download.py              # download the merged dataset
 python scripts/02_convert_labels.py        # unify classes, polygons → boxes
 python scripts/03_eda.py                   # dataset statistics
-python scripts/04_train.py                 # train (defaults: v4_M settings)
+python scripts/04_train.py                 # train (defaults: v4_M settings; add --workers 4 on Linux)
+python scripts/04_train.py --resume        # continue an interrupted run from last.pt
 python scripts/05_analyze_training.py      # training curves
 python scripts/06_evaluate_test.py         # metrics on the test split
 python scripts/07_analyze_test.py          # test report and plots

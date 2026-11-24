@@ -3,7 +3,8 @@
 Requires a Roboflow API key in the ROBOFLOW_API_KEY environment variable
 (or in a .env file at the repository root, see .env.example).
 
-The merged Roboflow project was built from these public Roboflow Universe sources:
+The merged Roboflow project was built mainly from these public Roboflow Universe sources
+(plus several small datasets added later to strengthen the without_helmet class):
 - NCKH-2023 (Vietnamese):          nckh-2023/helmet-detection-project v19
 - Helmet & No-Helmet Rider:         gw-khadatkar-and-sv-wasule/helmet-and-no-helmet-rider-detection v6
 - Motorcycle Riders Without Helmet: spresearchwork/motorcycle-riders-without-helmet v1

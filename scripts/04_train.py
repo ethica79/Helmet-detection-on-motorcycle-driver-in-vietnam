@@ -13,6 +13,9 @@ def main() -> None:
     parser.add_argument("--run-name", help="override train.run_name")
     parser.add_argument("--epochs", type=int, help="override train.epochs")
     parser.add_argument("--batch", type=int, help="override train.batch")
+    parser.add_argument("--workers", type=int, help="override train.workers (e.g. 4 on Linux)")
+    parser.add_argument("--resume", action="store_true",
+                        help="continue an interrupted run from its last.pt (same --run-name)")
     args = parser.parse_args()
 
     cfg = load_config(args.config)
@@ -21,6 +24,15 @@ def main() -> None:
     project = resolve(cfg["paths"]["runs_dir"]) / "helmet"
     device = "0" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {'GPU' if device == '0' else 'CPU'}")
+
+    if args.resume:
+        # Ultralytics restores every training argument from the checkpoint
+        last = project / run_name / "weights" / "last.pt"
+        if not last.exists():
+            raise SystemExit(f"Nothing to resume: {last} not found")
+        YOLO(str(last)).train(resume=True)
+        print(f"Best weights: {project / run_name / 'weights' / 'best.pt'}")
+        return
 
     model = YOLO(tr["model"])
     model.train(
@@ -33,7 +45,7 @@ def main() -> None:
         patience=tr["patience"],   # early stopping
         save=True,
         plots=True,
-        workers=tr["workers"],
+        workers=tr["workers"] if args.workers is None else args.workers,
         cls=tr["cls"],             # higher = penalise wrong class more
         device=device,
     )

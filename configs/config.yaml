@@ -4,7 +4,7 @@
 
 paths:
   datasets_dir: datasets
-  dataset: datasets/helmet_merged/projecthate-8   # folder containing data.yaml
+  dataset: datasets/helmet_merged/projectHD-8     # folder containing data.yaml
   runs_dir: runs
   reports_dir: reports
 
@@ -34,7 +34,7 @@ association:
 download:
   # Merged dataset on Roboflow (built from 7 public Roboflow Universe sources).
   workspace: therences-workspace
-  project: projecthate
+  project: projecthd     # Roboflow project ID (display name "projectHD")
   version: 8
   format: yolov8
 
