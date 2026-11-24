@@ -32,9 +32,10 @@ frame ──► Helmet model (YOLOv8m, trained here) ──► with_helmet / wit
 
 - **Dataset:** 15,451 unique images merged from public Roboflow Universe
   datasets (7 main sources, listed in `scripts/01_download.py`, plus several
-  small datasets added later to strengthen the violation class). Class names from the different sources were mapped to 2 classes,
-  polygon labels were converted to boxes, and several thousand labels were
-  annotated or corrected by hand. Split: 11,790 train / 2,170 val / 1,491 test.
+  small datasets added later to strengthen the violation class). Class names
+  from the different sources were mapped to 2 classes, polygon labels were
+  converted to boxes, and several thousand labels were annotated or corrected
+  by hand. Split: 11,790 train / 2,170 val / 1,491 test.
   The training set was augmented ×2 on Roboflow (15% grayscale, ±15% brightness),
   giving 23,580 training images (27,241 in total). Validation and test images
   are not augmented. Boxes are about 55/45 `with_helmet`/`without_helmet`.
@@ -170,7 +171,7 @@ pytest
 - [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics) is licensed
   under AGPL-3.0. Redistributing or serving this project together with
   Ultralytics must follow that license.
-- Training images come from 7 public
+- Training images come from public
   [Roboflow Universe](https://universe.roboflow.com/) datasets, each under its
-  own license. They are listed in `scripts/01_download.py`.
+  own license. The 7 main sources are listed in `scripts/01_download.py`.
 - Thanks to Dr. Son Tran Giang (ICT Lab, USTH) for supervising the thesis.
