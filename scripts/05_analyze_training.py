@@ -1,27 +1,37 @@
+"""Summarise a training run: best metrics, epoch progression and loss/mAP/F1 plots."""
+
+from __future__ import annotations
+
 import os
 import shutil
-import pandas as pd
+
 import matplotlib.pyplot as plt
+import pandas as pd
 
-# config
-RUN_NAME = "v4_M"
+from helmet_detection.config import base_parser, load_config, resolve
 
-RUNS_BASE  = r"C:\ProjectHD\runs\detect\runs\helmet"
-REPORT_DIR = rf"C:\ProjectHD\report\{RUN_NAME}_training"
-RUN_DIR    = os.path.join(RUNS_BASE, RUN_NAME)
-CSV_PATH   = os.path.join(RUN_DIR, "results.csv")
 
-if __name__ == "__main__":
-    os.makedirs(REPORT_DIR, exist_ok=True)
+def main() -> None:
+    parser = base_parser("Summarise a YOLOv8 training run.")
+    parser.add_argument("--run-name", help="override train.run_name")
+    args = parser.parse_args()
+    cfg = load_config(args.config)
+
+    run_name = args.run_name or cfg["train"]["run_name"]
+    run_dir = str(resolve(cfg["paths"]["runs_dir"]) / "helmet" / run_name)
+    report_dir = str(resolve(cfg["paths"]["reports_dir"]) / f"{run_name}_training")
+    csv_path = os.path.join(run_dir, "results.csv")
+
+    os.makedirs(report_dir, exist_ok=True)
 
     # Back up the raw CSV before doing anything else
-    shutil.copy(CSV_PATH, os.path.join(REPORT_DIR, f"{RUN_NAME}_train_results.csv"))
+    shutil.copy(csv_path, os.path.join(report_dir, f"{run_name}_train_results.csv"))
 
-    df = pd.read_csv(CSV_PATH)
+    df = pd.read_csv(csv_path)
     df.columns = df.columns.str.strip()  # YOLO sometimes adds spaces to column names
 
     print("=" * 60)
-    print(f"TRAINING SUMMARY — {RUN_NAME}")
+    print(f"TRAINING SUMMARY — {run_name}")
     print("=" * 60)
     print(f"Total epochs:        {len(df)}")
     print(f"Best mAP50:          {df['metrics/mAP50(B)'].max():.4f} (epoch {df['metrics/mAP50(B)'].idxmax() + 1})")
@@ -47,7 +57,7 @@ if __name__ == "__main__":
                (df['metrics/precision(B)'] + df['metrics/recall(B)'])
 
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-    fig.suptitle(f"Helmet Detection — {RUN_NAME} Training Results", fontsize=16, fontweight='bold')
+    fig.suptitle(f"Helmet Detection — {run_name} Training Results", fontsize=16, fontweight='bold')
 
     ax1 = axes[0, 0]
     ax1.plot(df['epoch'], df['train/box_loss'], label='Train box loss', color='blue')
@@ -81,22 +91,25 @@ if __name__ == "__main__":
     ax4.legend(); ax4.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plot_out = os.path.join(REPORT_DIR, f"{RUN_NAME}_train_analysis_plots.png")
+    plot_out = os.path.join(report_dir, f"{run_name}_train_analysis_plots.png")
     plt.savefig(plot_out, dpi=150, bbox_inches='tight')
-    plt.show()
     print(f"\nPlot saved to {plot_out}")
 
     # Copy the YOLO-generated plots into the report folder with consistent names
     for src_name, dst_name in [
-        ("confusion_matrix_normalized.png", f"{RUN_NAME}_train_confusion_matrix.png"),
-        ("results.png",                     f"{RUN_NAME}_train_metrics.png"),
-        ("BoxF1_curve.png",                 f"{RUN_NAME}_train_F1_curve.png"),
-        ("BoxPR_curve.png",                 f"{RUN_NAME}_train_PR_curve.png"),
-        ("BoxP_curve.png",                  f"{RUN_NAME}_train_P_curve.png"),
-        ("BoxR_curve.png",                  f"{RUN_NAME}_train_R_curve.png"),
+        ("confusion_matrix_normalized.png", f"{run_name}_train_confusion_matrix.png"),
+        ("results.png",                     f"{run_name}_train_metrics.png"),
+        ("BoxF1_curve.png",                 f"{run_name}_train_F1_curve.png"),
+        ("BoxPR_curve.png",                 f"{run_name}_train_PR_curve.png"),
+        ("BoxP_curve.png",                  f"{run_name}_train_P_curve.png"),
+        ("BoxR_curve.png",                  f"{run_name}_train_R_curve.png"),
     ]:
-        src = os.path.join(RUN_DIR, src_name)
+        src = os.path.join(run_dir, src_name)
         if os.path.exists(src):
-            shutil.copy(src, os.path.join(REPORT_DIR, dst_name))
+            shutil.copy(src, os.path.join(report_dir, dst_name))
 
-    print(f"All files saved to {REPORT_DIR}")
+    print(f"All files saved to {report_dir}")
+
+
+if __name__ == "__main__":
+    main()

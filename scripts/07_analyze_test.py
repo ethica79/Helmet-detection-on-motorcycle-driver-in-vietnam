@@ -1,75 +1,90 @@
+"""Summarise the latest test-set evaluation from 06_evaluate_test.py into a report folder."""
+
+from __future__ import annotations
+
+import glob
 import json
 import os
 import shutil
-import glob
-import matplotlib.pyplot as plt
+
 import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 
-# config
-RUN_NAME = "v4_M"
+from helmet_detection.config import base_parser, load_config, resolve
 
-REPORT_DIR = rf"C:\ProjectHD\report\{RUN_NAME}_validation"
 
-# Pick the most recently modified val run — that's the one we just ran
-val_jsons = glob.glob(r"C:\ProjectHD\runs\detect\val*\metrics.json")
-if not val_jsons:
-    raise FileNotFoundError("No validation metrics.json found. Run 6_inference.py first.")
-METRICS_FILE = max(val_jsons, key=os.path.getmtime)
+def main() -> None:
+    parser = base_parser("Summarise the latest test-set evaluation.")
+    parser.add_argument("--run-name", help="label for the report folder (default: train.run_name)")
+    args = parser.parse_args()
+    cfg = load_config(args.config)
 
-with open(METRICS_FILE) as f:
-    metrics = json.load(f)
+    run_name = args.run_name or cfg["train"]["run_name"]
+    report_dir = str(resolve(cfg["paths"]["reports_dir"]) / f"{run_name}_test")
 
-VAL_DIR = metrics["save_dir"]
+    # Pick the most recently modified evaluation run
+    val_jsons = glob.glob(str(resolve(cfg["paths"]["runs_dir"]) / "test" / "*" / "metrics.json"))
+    if not val_jsons:
+        raise FileNotFoundError("No metrics.json found. Run scripts/06_evaluate_test.py first.")
+    metrics_file = max(val_jsons, key=os.path.getmtime)
 
-print("=" * 50)
-print(f"VALIDATION RESULTS — {RUN_NAME} on full test set")
-print("=" * 50)
-print(f"  Precision : {metrics['precision']:.4f}")
-print(f"  Recall    : {metrics['recall']:.4f}")
-print(f"  mAP50     : {metrics['mAP50']:.4f}")
-print(f"  mAP50-95  : {metrics['mAP50_95']:.4f}")
+    with open(metrics_file) as f:
+        metrics = json.load(f)
 
-print("\nPer-class:")
-for cls, m in metrics["per_class"].items():
-    print(f"  {cls:<20} P={m['precision']:.3f}  R={m['recall']:.3f}  mAP50={m['mAP50']:.3f}  mAP50-95={m['mAP50_95']:.3f}")
+    val_dir = metrics["save_dir"]
 
-# Collect the plots that YOLO saved into the val run directory
-images = {
-    "Confusion Matrix":       os.path.join(VAL_DIR, "confusion_matrix_normalized.png"),
-    "Precision-Recall Curve": os.path.join(VAL_DIR, "BoxPR_curve.png"),
-    "F1 Curve":               os.path.join(VAL_DIR, "BoxF1_curve.png"),
-    "Precision Curve":        os.path.join(VAL_DIR, "BoxP_curve.png"),
-    "Recall Curve":           os.path.join(VAL_DIR, "BoxR_curve.png"),
-}
+    print("=" * 50)
+    print(f"TEST RESULTS — {run_name} on full test set")
+    print("=" * 50)
+    print(f"  Precision : {metrics['precision']:.4f}")
+    print(f"  Recall    : {metrics['recall']:.4f}")
+    print(f"  mAP50     : {metrics['mAP50']:.4f}")
+    print(f"  mAP50-95  : {metrics['mAP50_95']:.4f}")
 
-fig, axes = plt.subplots(2, 3, figsize=(18, 10))
-fig.suptitle(f"{RUN_NAME} Validation on Full Test Set", fontsize=16, fontweight="bold")
+    print("\nPer-class:")
+    for cls, m in metrics["per_class"].items():
+        print(f"  {cls:<20} P={m['precision']:.3f}  R={m['recall']:.3f}  mAP50={m['mAP50']:.3f}  mAP50-95={m['mAP50_95']:.3f}")
 
-for ax, (title, path) in zip(axes.flat, images.items()):
-    img = mpimg.imread(path)
-    ax.imshow(img)
-    ax.set_title(title)
-    ax.axis("off")
+    # Collect the plots that YOLO saved into the val run directory
+    images = {
+        "Confusion Matrix":       os.path.join(val_dir, "confusion_matrix_normalized.png"),
+        "Precision-Recall Curve": os.path.join(val_dir, "BoxPR_curve.png"),
+        "F1 Curve":               os.path.join(val_dir, "BoxF1_curve.png"),
+        "Precision Curve":        os.path.join(val_dir, "BoxP_curve.png"),
+        "Recall Curve":           os.path.join(val_dir, "BoxR_curve.png"),
+    }
 
-axes.flat[-1].axis("off")  # 5 plots in a 2x3 grid, hide the empty last cell
+    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+    fig.suptitle(f"{run_name} on the held-out test set", fontsize=16, fontweight="bold")
 
-os.makedirs(REPORT_DIR, exist_ok=True)
-analysis_png = os.path.join(REPORT_DIR, f"{RUN_NAME}_val_analysis.png")
-plt.tight_layout()
-plt.savefig(analysis_png, dpi=150, bbox_inches="tight")
-plt.show()
-print(f"\nPlot saved to {analysis_png}")
+    for ax, (title, path) in zip(axes.flat, images.items()):
+        img = mpimg.imread(path)
+        ax.imshow(img)
+        ax.set_title(title)
+        ax.axis("off")
 
-# Copy everything into the report folder with consistent naming
-shutil.copy(METRICS_FILE, os.path.join(REPORT_DIR, f"{RUN_NAME}_val_metrics.json"))
+    axes.flat[-1].axis("off")  # 5 plots in a 2x3 grid, hide the empty last cell
 
-for src_name, dst_name in [
-    ("confusion_matrix_normalized.png", f"{RUN_NAME}_val_confusion_matrix.png"),
-    ("BoxF1_curve.png",                 f"{RUN_NAME}_val_F1_curve.png"),
-    ("BoxPR_curve.png",                 f"{RUN_NAME}_val_PR_curve.png"),
-]:
-    src = os.path.join(VAL_DIR, src_name)
-    if os.path.exists(src):
-        shutil.copy(src, os.path.join(REPORT_DIR, dst_name))
+    os.makedirs(report_dir, exist_ok=True)
+    analysis_png = os.path.join(report_dir, f"{run_name}_test_analysis.png")
+    plt.tight_layout()
+    plt.savefig(analysis_png, dpi=150, bbox_inches="tight")
+    print(f"\nPlot saved to {analysis_png}")
 
-print(f"All files saved to {REPORT_DIR}")
+    # Copy everything into the report folder with consistent naming
+    shutil.copy(metrics_file, os.path.join(report_dir, f"{run_name}_test_metrics.json"))
+
+    for src_name, dst_name in [
+        ("confusion_matrix_normalized.png", f"{run_name}_test_confusion_matrix.png"),
+        ("BoxF1_curve.png",                 f"{run_name}_test_F1_curve.png"),
+        ("BoxPR_curve.png",                 f"{run_name}_test_PR_curve.png"),
+    ]:
+        src = os.path.join(val_dir, src_name)
+        if os.path.exists(src):
+            shutil.copy(src, os.path.join(report_dir, dst_name))
+
+    print(f"All files saved to {report_dir}")
+
+
+if __name__ == "__main__":
+    main()

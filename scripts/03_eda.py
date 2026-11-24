@@ -1,27 +1,29 @@
-"""
-EDA for the helmet_merged dataset.
-"""
+"""EDA for the merged helmet dataset: class balance, image sizes, box sizes, objects per image."""
 
-from pathlib import Path
+from __future__ import annotations
+
 from collections import defaultdict
+from pathlib import Path
+from typing import Any
+
 from PIL import Image
 
-DATASET_ROOT = Path(r"C:\ProjectHD\datasets\helmet_merged\projecthate-8")
+from helmet_detection.config import base_parser, load_config, resolve
+
 SPLITS       = ["train", "valid", "test"]
 CLASS_NAMES  = {0: "with_helmet", 1: "without_helmet"}
-OUTPUT_FILE  = Path(r"C:\ProjectHD\report\eda\eda_results.txt")
 
 
-def average(lst):
+def average(lst: list[float]) -> float:
     return sum(lst) / len(lst) if lst else 0
 
 
 # Loads all images for one split and returns a list of records,
 # each containing the image size and a list of (class, box_w, box_h) tuples.
 # We only keep width/height from the box, not the center — enough for size stats.
-def read_split(split):
-    img_dir = DATASET_ROOT / split / "images"
-    lbl_dir = DATASET_ROOT / split / "labels"
+def read_split(dataset_root: Path, split: str) -> list[dict[str, Any]]:
+    img_dir = dataset_root / split / "images"
+    lbl_dir = dataset_root / split / "labels"
     records = []
 
     for img_path in sorted(img_dir.iterdir()):
@@ -53,11 +55,15 @@ def read_split(split):
     return records
 
 
-def main():
-    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+def main() -> None:
+    args = base_parser("Exploratory data analysis of the merged dataset.").parse_args()
+    cfg = load_config(args.config)
+    dataset_root = resolve(cfg["paths"]["dataset"])
+    output_file = resolve(cfg["paths"]["reports_dir"]) / "eda" / "eda_results.txt"
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
     # Write results to both the console and a text file at the same time
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as out:
+    with open(output_file, "w", encoding="utf-8") as out:
 
         def log(text=""):
             print(text)
@@ -67,7 +73,7 @@ def main():
             log("-" * 55)
 
         log("Loading dataset")
-        all_records = {s: read_split(s) for s in SPLITS}
+        all_records = {s: read_split(dataset_root, s) for s in SPLITS}
         log("Done\n")
 
         # 1. How many images and boxes per split, and how balanced are the classes
@@ -170,7 +176,8 @@ def main():
 
         log("\nDone!")
 
-    print(f"\nResults saved to: {OUTPUT_FILE}")
+    print(f"\nResults saved to: {output_file}")
 
 
-main()
+if __name__ == "__main__":
+    main()

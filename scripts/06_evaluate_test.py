@@ -1,23 +1,36 @@
+"""Evaluate a trained helmet model on the held-out test split and save metrics as JSON."""
+
+from __future__ import annotations
+
 import json
 from pathlib import Path
 
-MODEL_PATH = r"C:\ProjectHD\runs\detect\runs\helmet\v4_M\weights\best.pt"
-DATA_YAML  = r"datasets/helmet_merged/projecthate-8/data.yaml"
+from ultralytics import YOLO
 
-if __name__ == "__main__":
-    from ultralytics import YOLO
+from helmet_detection.config import base_parser, load_config, resolve
 
-    model = YOLO(MODEL_PATH)
 
-    # Run validation on the test split and collect per-class metrics
-    results = model.val(data=DATA_YAML, split="test")
+def main() -> None:
+    parser = base_parser("Evaluate the helmet model on the test split.")
+    parser.add_argument("--weights", type=Path, help="override models.helmet_weights")
+    args = parser.parse_args()
+
+    cfg = load_config(args.config)
+    weights = args.weights or resolve(cfg["models"]["helmet_weights"])
+    model = YOLO(str(weights))
+    results = model.val(
+        data=str(resolve(cfg["paths"]["dataset"]) / "data.yaml"),
+        split="test",
+        project=str(resolve(cfg["paths"]["runs_dir"]) / "test"),
+    )
 
     metrics = {
-        "save_dir": str(results.save_dir),
-        "precision":  results.box.mp,
-        "recall":     results.box.mr,
-        "mAP50":      results.box.map50,
-        "mAP50_95":   results.box.map,
+        "weights":   str(weights),
+        "save_dir":  str(results.save_dir),
+        "precision": float(results.box.mp),
+        "recall":    float(results.box.mr),
+        "mAP50":     float(results.box.map50),
+        "mAP50_95":  float(results.box.map),
         "per_class": {
             results.names[i]: {
                 "precision": float(results.box.p[i]),
@@ -26,12 +39,14 @@ if __name__ == "__main__":
                 "mAP50_95":  float(results.box.ap[i]),
             }
             for i in range(len(results.names))
-        }
+        },
     }
 
-    # Save metrics as JSON so 7_analyze_val.py can pick it up
+    # 07_analyze_test.py picks up the most recent metrics.json
     out = Path(results.save_dir) / "metrics.json"
-    with open(out, "w") as f:
-        json.dump(metrics, f, indent=2)
-
+    out.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
     print(f"\nMetrics saved to {out}")
+
+
+if __name__ == "__main__":
+    main()

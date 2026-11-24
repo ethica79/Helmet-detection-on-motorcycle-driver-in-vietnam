@@ -1,38 +1,46 @@
-from ultralytics import YOLO
+"""Train a YOLOv8 helmet detector. Hyperparameters come from the ``train`` section of the config."""
+
+from __future__ import annotations
+
 import torch
+from ultralytics import YOLO
+
+from helmet_detection.config import base_parser, load_config, resolve
 
 
-def main():
-    DATA_YAML = r"C:\ProjectHD\datasets\helmet_merged\projecthate-8\data.yaml"
-    MODEL     = "yolov8m.pt"
-    PROJECT   = "runs/helmet"
-    RUN_NAME  = "v4_M"
-    EPOCHS    = 100
-    IMG_SIZE  = 640
-    BATCH     = 4  # keep low if running on a single GPU with limited VRAM
+def main() -> None:
+    parser = base_parser("Train a YOLOv8 helmet detector.")
+    parser.add_argument("--run-name", help="override train.run_name")
+    parser.add_argument("--epochs", type=int, help="override train.epochs")
+    parser.add_argument("--batch", type=int, help="override train.batch")
+    args = parser.parse_args()
 
-    print(f"Using device: {'GPU' if torch.cuda.is_available() else 'CPU'}")
+    cfg = load_config(args.config)
+    tr = cfg["train"]
+    run_name = args.run_name or tr["run_name"]
+    project = resolve(cfg["paths"]["runs_dir"]) / "helmet"
+    device = "0" if torch.cuda.is_available() else "cpu"
+    print(f"Using device: {'GPU' if device == '0' else 'CPU'}")
 
-    model = YOLO(MODEL)
-
+    model = YOLO(tr["model"])
     model.train(
-        data     = DATA_YAML,
-        epochs   = EPOCHS,
-        imgsz    = IMG_SIZE,
-        batch    = BATCH,
-        project  = PROJECT,
-        name     = RUN_NAME,
-        patience = 20,   # stop early if no improvement for 20 epochs
-        save     = True,
-        plots    = True,
-        workers  = 0,    # set to 0 on Windows to avoid DataLoader multiprocessing issues
-        cls      = 1.0,  # weight for classification loss (higher = penalise wrong class more)
-        device   = "0" if torch.cuda.is_available() else "cpu",
+        data=str(resolve(cfg["paths"]["dataset"]) / "data.yaml"),
+        epochs=args.epochs or tr["epochs"],
+        imgsz=tr["imgsz"],
+        batch=args.batch or tr["batch"],
+        project=str(project),
+        name=run_name,
+        patience=tr["patience"],   # early stopping
+        save=True,
+        plots=True,
+        workers=tr["workers"],
+        cls=tr["cls"],             # higher = penalise wrong class more
+        device=device,
     )
 
     print("Training complete!")
-    print(f"Best weights: {PROJECT}/{RUN_NAME}/weights/best.pt")
+    print(f"Best weights: {project / run_name / 'weights' / 'best.pt'}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

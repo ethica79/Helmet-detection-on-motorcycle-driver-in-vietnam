@@ -1,58 +1,53 @@
+"""Run the full violation pipeline on a webcam or video file and display it live (press Q to quit)."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
 import cv2
-from ultralytics import YOLO
 
-# config
-MODEL_PATH = r"C:\ProjectHD\runs\detect\runs\helmet\v4_M\weights\best.pt"
-SOURCE     = 0  # 0 = webcam, or path to a video file
-CONF       = 0.5
-SAVE_OUT   = False
-OUT_PATH   = r"C:\ProjectHD\output.mp4"
+from helmet_detection.config import base_parser, load_config
+from helmet_detection.pipeline import ViolationPipeline
 
-COLORS = {0: (0, 200, 0), 1: (0, 0, 220)}  # green = with_helmet, red = without_helmet
-NAMES  = {0: "with helmet", 1: "no helmet"}
 
-model = YOLO(MODEL_PATH)
-cap   = cv2.VideoCapture(SOURCE)
+def main() -> None:
+    parser = base_parser("Live violation detection on a webcam or video file.")
+    parser.add_argument("--source", default="0", help="webcam index (default 0) or video path")
+    parser.add_argument("--save", type=Path, help="optional path to save the annotated video (.mp4)")
+    args = parser.parse_args()
 
-if not cap.isOpened():
-    raise RuntimeError(f"Cannot open source: {SOURCE}")
+    pipeline = ViolationPipeline(load_config(args.config))
+    source = int(args.source) if args.source.isdigit() else args.source
+    cap = cv2.VideoCapture(source)
+    if not cap.isOpened():
+        raise RuntimeError(f"Cannot open source: {args.source}")
 
-# Set up a video writer if we want to save the annotated output
-writer = None
-if SAVE_OUT:
-    w   = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    h   = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fps = cap.get(cv2.CAP_PROP_FPS) or 30
-    writer = cv2.VideoWriter(OUT_PATH, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
+    writer = None
+    if args.save:
+        w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fps = cap.get(cv2.CAP_PROP_FPS) or 30
+        writer = cv2.VideoWriter(str(args.save), cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
 
-print("Running — press Q to quit.")
+    print("Running, press Q to quit.")
+    try:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            annotated = pipeline.annotate(frame)
+            cv2.imshow("Helmet Violation Detection", annotated)
+            if writer:
+                writer.write(annotated)
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
+    finally:
+        cap.release()
+        if writer:
+            writer.release()
+            print(f"Saved to {args.save}")
+        cv2.destroyAllWindows()
 
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
 
-    results = model(frame, conf=CONF, verbose=False)[0]
-
-    for box in results.boxes:
-        cls   = int(box.cls)
-        conf  = float(box.conf)
-        x1, y1, x2, y2 = map(int, box.xyxy[0])
-        color = COLORS.get(cls, (255, 255, 0))
-        label = f"{NAMES.get(cls, cls)} {conf:.2f}"
-        cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-        cv2.putText(frame, label, (x1, max(y1 - 6, 10)),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
-
-    cv2.imshow("Helmet Detection", frame)
-    if writer:
-        writer.write(frame)
-
-    if cv2.waitKey(1) & 0xFF == ord("q"):
-        break
-
-cap.release()
-if writer:
-    writer.release()
-    print(f"Saved to {OUT_PATH}")
-cv2.destroyAllWindows()
+if __name__ == "__main__":
+    main()

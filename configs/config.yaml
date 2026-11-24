@@ -1,0 +1,47 @@
+# Central configuration for the helmet violation detection project.
+# Relative paths are resolved against the repository root.
+# Every script also accepts --config to point at another file.
+
+paths:
+  datasets_dir: datasets
+  dataset: datasets/helmet_merged/projecthate-8   # folder containing data.yaml
+  runs_dir: runs
+  reports_dir: reports
+
+models:
+  # Final helmet model (v4_M, YOLOv8m). Download from the GitHub Release, see README.
+  helmet_weights: weights/helmet_v4_M.pt
+  # Third-party motorcycle detector (KhaiTrang1995/motorcycle-detection-yolov8).
+  moto_weights: weights/motorcycle_yolov8.pt
+
+classes:
+  with_helmet: 0
+  without_helmet: 1
+
+inference:
+  helmet_conf: 0.329   # F1-optimal threshold from the v4_M F1-confidence curve
+  moto_conf: 0.25
+
+association:
+  # A without_helmet detection is a violation only if its centre falls inside
+  # a motorcycle box expanded by these factors (relative to the box size).
+  expand_x: 1.3        # total width multiplier, centred
+  expand_up: 2.0       # extension above the box, in box heights (reaches the rider's head)
+  expand_down: 0.1     # extension below the box, in box heights
+
+download:
+  # Merged dataset on Roboflow (built from 7 public Roboflow Universe sources).
+  workspace: therences-workspace
+  project: projecthate
+  version: 8
+  format: yolov8
+
+train:
+  model: yolov8m.pt    # COCO-pretrained checkpoint, downloaded automatically
+  run_name: v4_M
+  epochs: 100
+  imgsz: 640
+  batch: 4             # 4 GB VRAM (RTX 3050 Laptop)
+  patience: 20
+  cls: 1.0             # classification loss weight
+  workers: 0           # 0 avoids DataLoader multiprocessing issues on Windows
