@@ -1,0 +1,27 @@
+# Tested with Python 3.11 on Windows 11, NVIDIA RTX 3050 Laptop (4 GB VRAM).
+# For CUDA builds of PyTorch, install torch/torchvision first from
+# https://pytorch.org/get-started/locally/ (e.g. --index-url .../whl/cu121).
+torch==2.5.1
+torchvision==0.20.1
+
+ultralytics>=8.3,<9
+opencv-python>=4.8
+numpy>=1.24
+pillow>=10.0
+pyyaml>=6.0
+pandas>=2.0
+matplotlib>=3.7
+
+# Data download
+roboflow>=1.1
+python-dotenv>=1.0
+
+# Web demo
+gradio>=4.0,<6
+imageio-ffmpeg>=0.5
+
+# Tests
+pytest>=8.0
+
+# Install the local package (src/helmet_detection) in editable mode
+-e .

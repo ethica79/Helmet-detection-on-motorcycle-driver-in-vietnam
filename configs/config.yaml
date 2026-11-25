@@ -1,0 +1,49 @@
+# Central configuration for the helmet violation detection project.
+# Relative paths are resolved against the repository root.
+# Every script also accepts --config to point at another file.
+
+paths:
+  datasets_dir: datasets
+  dataset: datasets/helmet_merged/projectHD-8     # folder containing data.yaml
+  runs_dir: runs
+  reports_dir: reports
+
+models:
+  # Helmet model (retrained v4_M, YOLOv8m). Download from the GitHub Release, see README.
+  helmet_weights: weights/helmet_v4_M.pt
+  # Motorcycle detector: stock COCO-pretrained YOLOv8s, downloaded automatically.
+  # (The thesis code loaded it as "yolov8Motorcyle.pt"; the weights are identical.)
+  moto_weights: yolov8s.pt
+  moto_classes: [motorcycle]   # COCO class(es) that define an association zone
+
+classes:
+  with_helmet: 0
+  without_helmet: 1
+
+inference:
+  helmet_conf: 0.427   # F1-optimal on the val split for the published model (thesis model: 0.329)
+  moto_conf: 0.25
+
+association:
+  # A without_helmet detection is a violation only if its centre falls inside
+  # a motorcycle box expanded by these factors (relative to the box size).
+  expand_x: 1.3        # total width multiplier, centred
+  expand_up: 2.0       # extension above the box, in box heights (reaches the rider's head)
+  expand_down: 0.1     # extension below the box, in box heights
+
+download:
+  # Merged dataset on Roboflow (7 main public Roboflow Universe sources + several small ones).
+  workspace: therences-workspace
+  project: projecthd     # Roboflow project ID (display name "projectHD")
+  version: 8
+  format: yolov8
+
+train:
+  model: yolov8m.pt    # COCO-pretrained checkpoint, downloaded automatically
+  run_name: v4_M
+  epochs: 100
+  imgsz: 640
+  batch: 4             # 4 GB VRAM (RTX 3050 Laptop)
+  patience: 20
+  cls: 1.0             # classification loss weight
+  workers: 0           # 0 avoids DataLoader multiprocessing issues on Windows
