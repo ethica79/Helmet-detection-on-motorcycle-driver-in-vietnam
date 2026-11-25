@@ -9,7 +9,7 @@ paths:
   reports_dir: reports
 
 models:
-  # Final helmet model (v4_M, YOLOv8m). Download from the GitHub Release, see README.
+  # Helmet model (retrained v4_M, YOLOv8m). Download from the GitHub Release, see README.
   helmet_weights: weights/helmet_v4_M.pt
   # Motorcycle detector: stock COCO-pretrained YOLOv8s, downloaded automatically.
   # (The thesis code loaded it as "yolov8Motorcyle.pt"; the weights are identical.)
@@ -21,7 +21,7 @@ classes:
   without_helmet: 1
 
 inference:
-  helmet_conf: 0.329   # F1-optimal threshold from the v4_M F1-confidence curve
+  helmet_conf: 0.427   # F1-optimal on the val split for the published model (thesis model: 0.329)
   moto_conf: 0.25
 
 association:
@@ -32,7 +32,7 @@ association:
   expand_down: 0.1     # extension below the box, in box heights
 
 download:
-  # Merged dataset on Roboflow (built from 7 public Roboflow Universe sources).
+  # Merged dataset on Roboflow (7 main public Roboflow Universe sources + several small ones).
   workspace: therences-workspace
   project: projecthd     # Roboflow project ID (display name "projectHD")
   version: 8

@@ -10,7 +10,9 @@ Hanoi; supervisor: Dr. Son Tran Giang, ICT Lab).
 
 **Final model (v4_M, YOLOv8m) on a held-out test set of 1,491 images:**
 **mAP50 0.877**, precision 0.854, recall 0.837, and **0.826 recall on the
-`without_helmet` (violation) class**.
+`without_helmet` (violation) class** (thesis results). The model published with
+this repository is a retrained copy that reaches mAP50 0.876 on the same test
+set (see [Results](#results)).
 
 ## Problem
 
@@ -46,12 +48,15 @@ frame ──► Helmet model (YOLOv8m, trained here) ──► with_helmet / wit
   2.0× its height (to reach the rider's head) and downward by 0.1×. A
   `without_helmet` box whose centre falls in that zone is a violation. Otherwise
   it is suppressed.
-- **Deployment threshold:** confidence 0.329, the F1-optimal point on the v4_M
-  F1-confidence curve.
+- **Deployment threshold:** confidence 0.427, the F1-optimal point of the
+  published model on the validation split (the thesis model's was 0.329).
 
 ## Results
 
-Test set (1,491 images), final model **v4_M**:
+All numbers are on the same held-out test set of 1,491 images (2,781 boxes).
+
+**Thesis model (v4_M).** These are the results reported in the thesis. The
+original weights were lost, so they are not distributed here.
 
 | Class | Precision | Recall | mAP50 | mAP50-95 |
 |---|---|---|---|---|
@@ -59,6 +64,21 @@ Test set (1,491 images), final model **v4_M**:
 | without_helmet | 0.844 | 0.826 | 0.866 | – |
 
 Both project targets were met: mAP50 > 0.80 and violation recall > 0.75.
+
+**Published model (retrained v4_M).** Same dataset (Roboflow `projecthd` v8)
+and model (YOLOv8m, COCO-pretrained, 640×640, patience 20, cls 1.0), trained
+with batch 16 and Ultralytics 8.4 (optimizer chosen automatically: MuSGD).
+Best epoch: 24. Reproduce with `python scripts/06_evaluate_test.py`.
+
+| Class | Precision | Recall | mAP50 | mAP50-95 |
+|---|---|---|---|---|
+| all | 0.853 | 0.834 | 0.876 | 0.507 |
+| with_helmet | 0.875 | 0.847 | 0.888 | 0.521 |
+| without_helmet | 0.831 | 0.821 | 0.865 | 0.493 |
+
+The retrained model matches the thesis on precision, recall and mAP50 (within
+0.013). Its mAP50-95 is lower (0.507 vs 0.543): it finds heads as reliably,
+but its boxes fit slightly less tightly.
 
 **What the ablation showed:**
 
@@ -103,10 +123,10 @@ pip install -r requirements.txt
 
 ### Model weights
 
-- **Helmet model (v4_M):** download `helmet_v4_M.pt` from the
+- **Helmet model (retrained v4_M, 52 MB):** download `helmet_v4_M.pt` from the
   [Releases page](https://github.com/ethica79/Helmet-detection-on-motorcycle-driver-in-vietnam/releases)
   and put it in `weights/`.
-  <!-- TODO: upload best.pt of run v4_M as a release asset named helmet_v4_M.pt -->
+  <!-- TODO: upload weights/helmet_v4_M.pt as a release asset -->
 - **Motorcycle model:** stock COCO `yolov8s.pt`. Ultralytics downloads it on first run.
 
 ## Usage
@@ -137,7 +157,8 @@ cp .env.example .env                       # add your Roboflow API key
 python scripts/01_download.py              # download the merged dataset
 python scripts/02_convert_labels.py        # unify classes, polygons → boxes
 python scripts/03_eda.py                   # dataset statistics
-python scripts/04_train.py                 # train (defaults: v4_M settings; add --workers 4 on Linux)
+python scripts/04_train.py                 # train with the thesis v4_M settings (batch 4)
+python scripts/04_train.py --batch 16 --workers 8   # settings of the published model
 python scripts/04_train.py --resume        # continue an interrupted run from last.pt
 python scripts/05_analyze_training.py      # training curves
 python scripts/06_evaluate_test.py         # metrics on the test split
@@ -159,6 +180,9 @@ pytest
   Better labels, not bigger models, are the next step.
 - The association rule is geometric. It can still misfire with heavy occlusion
   or very dense traffic.
+- The association depends on the COCO motorcycle detector. In dark or infrared
+  night footage it can miss the motorcycle, and a real violation is then
+  suppressed.
 - The thesis version of the association step used every class from the COCO
   model (including `person`) as a motorcycle zone. This repository restricts it
   to `motorcycle`. The detection metrics above are unaffected, but the
